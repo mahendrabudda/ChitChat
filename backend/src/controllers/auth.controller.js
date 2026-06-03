@@ -4,6 +4,8 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import generateToken from "../lib/utils.js";
+import {sendWelcomeEmail} from "../Emails/EmailHandlers.js";
+import cloudinary from "../lib/cloudinary.js";
 
 
 export const login = async (req, res) => {
@@ -45,7 +47,6 @@ export const login = async (req, res) => {
     }
 };
 
-
 export const signUp = async (req, res) => {
     try {
         const { fullName, email, password } = req.body;
@@ -79,7 +80,11 @@ export const signUp = async (req, res) => {
             password: hashedPassword,
         });
 
-
+        await sendWelcomeEmail({
+            email: newUser.email,
+            name: newUser.fullName,
+            verificationLink: `http://localhost:5173/login`,
+        });
 
         generateToken(newUser._id, res);
 
@@ -88,11 +93,54 @@ export const signUp = async (req, res) => {
             fullName: newUser.fullName,
             email: newUser.email,
         });
+
     } catch (error) {
-        console.log("Signup Error:", error.message);
+        console.log("Signup Error:", error);
 
         res.status(500).json({
             message: "Internal Server Error",
         });
     }
+};
+export const logout = async (req, res) => {
+    try {
+        res.cookie("jwt", "", {
+            maxAge: 0,
+            httpOnly: true,
+            sameSite: "strict",
+            secure: process.env.NODE_ENV !== "development",
+        });
+
+        res.status(200).json({
+            message: "Logged out successfully",
+        });
+    } catch (error) {
+        console.log("Logout Error:", error.message);
+
+        res.status(500).json({
+            message: "Internal Server Error",
+        });
+    }
+};
+
+export const updateprofile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    if (!profilePic) return res.status(400).json({ message: "Profile pic is required" });
+
+    const userId = req.user._id;
+
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: uploadResponse.secure_url },
+      { new: true }
+    );
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.log("Error in update profile:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };

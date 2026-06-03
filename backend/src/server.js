@@ -1,5 +1,6 @@
 //const express = require('express')
 import express from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import path from "path";
 
@@ -10,7 +11,9 @@ import connectDB from "./lib/db.js";
 
 dotenv.config();
 const app = express();
+
 app.use(express.json());
+app.use(cookieParser());
 const __dirname = path.resolve();
 app.use("/api/auth",router);
 
