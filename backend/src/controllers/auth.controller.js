@@ -4,8 +4,10 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import generateToken from "../lib/utils.js";
-import {sendWelcomeEmail} from "../Emails/EmailHandlers.js";
 import cloudinary from "../lib/cloudinary.js";
+import transporter from "../lib/nodemailer.js";
+
+import { sendWelcomeEmail, sendPasswordResetEmail } from "../Emails/EmailHandlers.js";
 
 
 export const login = async (req, res) => {
@@ -142,5 +144,57 @@ export const updateprofile = async (req, res) => {
   } catch (error) {
     console.log("Error in update profile:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const sendResetOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.resetOtp = otp;
+    user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    // use the new HTML email handler instead of transporter directly
+    await sendPasswordResetEmail({ email: user.email, otp });
+
+    return res.json({ success: true, message: "OTP sent to your email" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+export const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({ success: false, message: "Email, OTP and new password are required" });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+    if (user.resetOtpExpireAt < Date.now()) {
+      return res.status(400).json({ success: false, message: "OTP has expired" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetOtp = "";
+    user.resetOtpExpireAt = 0;
+    await user.save();
+
+    return res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
