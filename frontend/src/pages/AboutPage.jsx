@@ -26,10 +26,10 @@ const values = [
 ];
 
 const team = [
-  { name: "Arjun Mehta", role: "Founder & CEO", initials: "AM" },
-  { name: "Priya Sharma", role: "Lead Designer", initials: "PS" },
-  { name: "Ravi Kumar", role: "Backend Engineer", initials: "RK" },
-  { name: "Sneha Patel", role: "Frontend Engineer", initials: "SP" },
+  { name: "Mahendra", role: "Founder & CEO", initials: "AM" },
+  { name: "Mahi", role: "Lead Designer", initials: "PS" },
+  { name: "Mahendra Bahubali", role: "Backend Engineer", initials: "RK" },
+  { name: "Bob", role: "Frontend Engineer", initials: "SP" },
 ];
 
 export default function AboutPage() {
