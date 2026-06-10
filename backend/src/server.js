@@ -31,7 +31,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/friends", friendRequestRouter);
 
-app.get("/", (req, res) => res.send("API is running..."));
+//app.get("/", (req, res) => res.send("API is running..."));
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "frontend/dist")));
 
