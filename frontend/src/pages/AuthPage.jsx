@@ -182,7 +182,12 @@ export default function AuthPage() {
 
                   <button
                     type="button"
-                    onClick={() => window.location.href = "http://localhost:3000/api/auth/google"}
+                    onClick={() => {
+                      window.location.href =
+                        import.meta.env.MODE === "development"
+                          ? "http://localhost:3000/api/auth/google"
+                          : "/api/auth/google";
+                    }}
                     className="w-full border border-slate-200 rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                   >
                     <FcGoogle size={18} />
@@ -259,7 +264,12 @@ export default function AuthPage() {
 
                   <button
                     type="button"
-                    onClick={() => window.location.href = "http://localhost:3000/api/auth/google"}
+                    onClick={() => {
+                      window.location.href =
+                        import.meta.env.MODE === "development"
+                          ? "http://localhost:3000/api/auth/google"
+                          : "/api/auth/google";
+                    }}
                     className="w-full border border-slate-200 rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                   >
                     <FcGoogle size={18} />
