@@ -5,12 +5,10 @@ import {
   sendResetOtp, resetPassword
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
-import { arcjetProtection } from "../middleware/arcjet.middleware.js";
 import generateToken from "../lib/utils.js";
 
 const router = express.Router();
 
-// existing routes
 router.post("/sign-up", signUp);
 router.post("/login", login);
 router.post("/logout", logout);
@@ -21,15 +19,22 @@ router.post("/reset-password", resetPassword);
 
 // ── Google OAuth ──
 router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
+);
+
+router.get(
   "/google/callback",
   passport.authenticate("google", {
     failureRedirect: `${process.env.CLIENT_URL}/auth?error=google_failed`,
     session: false,
   }),
   (req, res) => {
-    console.log("Google User:", req.user);
-
-    res.send(req.user);
+    generateToken(req.user._id, res);
+    res.redirect(`${process.env.CLIENT_URL}/home`);
   }
 );
 
