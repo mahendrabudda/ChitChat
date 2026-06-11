@@ -21,8 +21,38 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // your existing code
+        console.log("Google profile received:", profile.id, profile.emails[0].value);
+
+        let user = await User.findOne({ googleId: profile.id });
+        console.log("User by googleId:", user?._id);
+
+        if (user) return done(null, user);
+
+        user = await User.findOne({ email: profile.emails[0].value });
+        console.log("User by email:", user?._id);
+
+        if (user) {
+          user.googleId = profile.id;
+          if (!user.profilePic && profile.photos[0]?.value) {
+            user.profilePic = profile.photos[0].value;
+          }
+          await user.save();
+          return done(null, user);
+        }
+
+        console.log("Creating new user...");
+        const newUser = await User.create({
+          googleId: profile.id,
+          fullName: profile.displayName,
+          email: profile.emails[0].value,
+          profilePic: profile.photos[0]?.value || "",
+          password: "",
+        });
+        console.log("New user created:", newUser._id);
+
+        return done(null, newUser);
       } catch (error) {
+        console.log("Passport strategy error:", error);
         return done(error, null);
       }
     }
