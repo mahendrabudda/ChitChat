@@ -1,6 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import User from "../models/user.model.js";
+import { sendWelcomeEmail } from "../Emails/EmailHandlers.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -32,6 +33,7 @@ passport.use(
         console.log("User by email:", user?._id);
 
         if (user) {
+          // existing manual account — link google, no welcome email
           user.googleId = profile.id;
           if (!user.profilePic && profile.photos[0]?.value) {
             user.profilePic = profile.photos[0].value;
@@ -40,6 +42,7 @@ passport.use(
           return done(null, user);
         }
 
+        // brand new Google user — create + send welcome email
         console.log("Creating new user...");
         const newUser = await User.create({
           googleId: profile.id,
@@ -49,6 +52,12 @@ passport.use(
           password: "",
         });
         console.log("New user created:", newUser._id);
+
+        sendWelcomeEmail({
+          email: newUser.email,
+          name: newUser.fullName,
+          verificationLink: process.env.CLIENT_URL || "http://localhost:5173",
+        }).catch((err) => console.error("Welcome email failed:", err.message));
 
         return done(null, newUser);
       } catch (error) {
