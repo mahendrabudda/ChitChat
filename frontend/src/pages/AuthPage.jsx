@@ -28,6 +28,10 @@ export default function AuthPage() {
 
   const switchPanel = (to) => { setError(""); setPanel(to); };
 
+  const googleUrl = import.meta.env.MODE === "development"
+    ? "http://localhost:3000/api/auth/google"
+    : "/api/auth/google";
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -117,6 +121,49 @@ export default function AuthPage() {
     </div>
   );
 
+  const LoginError = () => (
+    error ? (
+      <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
+        {error}
+        {error.includes("Please sign up") && (
+          <button
+            type="button"
+            onClick={() => switchPanel(PANEL.SIGNUP)}
+            className="ml-1 underline font-semibold text-red-700"
+          >
+            Sign up here
+          </button>
+        )}
+        {error.includes("Google sign-in") && (
+          <button
+            type="button"
+            onClick={() => window.location.href = googleUrl}
+            className="ml-1 underline font-semibold text-red-700"
+          >
+            Continue with Google
+          </button>
+        )}
+      </div>
+    ) : null
+  );
+
+  const ForgotError = () => (
+    error ? (
+      <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
+        {error}
+        {error.includes("Google sign-in") && (
+          <button
+            type="button"
+            onClick={() => { switchPanel(PANEL.LOGIN); setForgotStep(1); }}
+            className="ml-1 underline font-semibold text-red-700"
+          >
+            Back to login
+          </button>
+        )}
+      </div>
+    ) : null
+  );
+
   return (
     <div className="min-h-screen w-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 p-4">
       <div className="w-full max-w-[900px] min-h-[580px] bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -132,21 +179,16 @@ export default function AuthPage() {
               transition={{ duration: 0.45, ease: "easeInOut" }}
               className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              {/* Hero — hidden on mobile */}
               <div className="hidden md:block h-full">
                 <img src={loginHero} alt="Login" className="w-full h-full object-cover" />
               </div>
-
-              {/* Form */}
               <div className="flex items-center justify-center px-8 py-8 md:py-0 h-full">
                 <div className="w-full">
                   <Logo />
                   <h1 className="text-2xl font-bold text-slate-800">Welcome Back</h1>
                   <p className="text-sm text-slate-500 mt-0.5 mb-4">Enter your credentials to access your dashboard.</p>
 
-                  {error && (
-                    <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">{error}</div>
-                  )}
+                  <LoginError />
 
                   <form onSubmit={handleLogin} className="space-y-3">
                     <div>
@@ -185,12 +227,7 @@ export default function AuthPage() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      window.location.href =
-                        import.meta.env.MODE === "development"
-                          ? "http://localhost:3000/api/auth/google"
-                          : "/api/auth/google";
-                    }}
+                    onClick={() => window.location.href = googleUrl}
                     className="w-full border border-slate-200 rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                   >
                     <FcGoogle size={18} />
@@ -218,7 +255,6 @@ export default function AuthPage() {
               transition={{ duration: 0.45, ease: "easeInOut" }}
               className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              {/* Form */}
               <div className="flex items-start justify-center px-8 h-full pt-10 pb-8 md:pb-0">
                 <div className="w-full">
                   <Logo />
@@ -268,12 +304,7 @@ export default function AuthPage() {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      window.location.href =
-                        import.meta.env.MODE === "development"
-                          ? "http://localhost:3000/api/auth/google"
-                          : "/api/auth/google";
-                    }}
+                    onClick={() => window.location.href = googleUrl}
                     className="w-full border border-slate-200 rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
                   >
                     <FcGoogle size={18} />
@@ -289,7 +320,6 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              {/* Hero — hidden on mobile */}
               <div className="hidden md:block h-full">
                 <img src={signUpHero} alt="Signup" className="w-full h-full object-cover" />
               </div>
@@ -306,12 +336,10 @@ export default function AuthPage() {
               transition={{ duration: 0.45, ease: "easeInOut" }}
               className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              {/* Hero — hidden on mobile */}
               <div className="hidden md:block h-full">
                 <img src={loginHero} alt="Reset" className="w-full h-full object-cover" />
               </div>
 
-              {/* Form */}
               <div className="flex items-center justify-center px-8 py-8 md:py-0 h-full">
                 <div className="w-full">
                   <Logo />
@@ -332,9 +360,7 @@ export default function AuthPage() {
                       : `OTP sent to ${forgotEmail}. Enter it below.`}
                   </p>
 
-                  {error && (
-                    <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">{error}</div>
-                  )}
+                  <ForgotError />
 
                   {forgotStep === 1 && (
                     <form onSubmit={handleSendOtp} className="space-y-3">
