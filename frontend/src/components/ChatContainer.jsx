@@ -7,7 +7,14 @@ import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 
 function ChatContainer() {
-  const { selectedUser, getMessagesByUserId, messages, isMessagesLoading, subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+  const {
+    selectedUser,
+    getMessagesByUserId,
+    messages,
+    isMessagesLoading,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  } = useChatStore();
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
 
@@ -22,9 +29,13 @@ function ChatContainer() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full overflow-hidden">
+
+      {/* Header — fixed at top */}
       <ChatHeader />
-      <div className="flex-1 px-6 overflow-y-auto py-6 bg-gradient-to-b from-blue-50/30 to-white">
+
+      {/* Messages — scrollable middle */}
+      <div className="flex-1 px-4 lg:px-6 overflow-y-auto py-6">
         {isMessagesLoading ? (
           <MessagesLoadingSkeleton />
         ) : messages.length === 0 ? (
@@ -47,7 +58,10 @@ function ChatContainer() {
                     )}
                     {msg.text && <p>{msg.text}</p>}
                     <p className={`text-[10px] mt-1 ${isMine ? "text-sky-100" : "text-blue-300"} text-right`}>
-                      {new Date(msg.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(msg.createdAt).toLocaleTimeString(undefined, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -57,7 +71,10 @@ function ChatContainer() {
           </div>
         )}
       </div>
+
+      {/* Input — fixed at bottom */}
       <MessageInput />
+
     </div>
   );
 }
