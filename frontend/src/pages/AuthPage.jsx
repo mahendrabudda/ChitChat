@@ -39,7 +39,15 @@ export default function AuthPage() {
       await login(loginData);
       navigate("/home");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      const message = err.response?.data?.message || "Login failed";
+      // auto-switch to signup and pre-fill email
+      if (message.includes("No account found")) {
+        setSignupData((prev) => ({ ...prev, email: loginData.email }));
+        switchPanel(PANEL.SIGNUP);
+        toast("No account found — please sign up", { icon: "👋" });
+      } else {
+        setError(message);
+      }
     }
   };
 
@@ -121,32 +129,45 @@ export default function AuthPage() {
     </div>
   );
 
-  const LoginError = () => (
-    error ? (
-      <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
-        {error}
-        {error.includes("Please sign up") && (
-          <button
-            type="button"
-            onClick={() => switchPanel(PANEL.SIGNUP)}
-            className="ml-1 underline font-semibold text-red-700"
-          >
-            Sign up here
-          </button>
-        )}
-        {error.includes("Google sign-in") && (
-          <button
-            type="button"
-            onClick={() => window.location.href = googleUrl}
-            className="ml-1 underline font-semibold text-red-700"
-          >
-            Continue with Google
-          </button>
-        )}
-      </div>
-    ) : null
-  );
+  export const login = async (req, res) => {
+    try {
+      const { email, password } = req.body;
 
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({
+          message: "No account found with this email. Please sign up.",
+        });
+      }
+
+      // Google-only user — hasn't set a password yet
+      if (!user.password) {
+        return res.status(400).json({
+          message: "This account uses Google sign-in. Use 'Forgot password' to set a password, or continue with Google.",
+        });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(password, user.password);
+      if (!isPasswordCorrect) {
+        return res.status(400).json({
+          message: "Incorrect password. Please try again.",
+        });
+      }
+
+      generateToken(user._id, res);
+
+      res.status(200).json({
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        profilePic: user.profilePic,
+      });
+    } catch (error) {
+      console.log("Login Error:", error.message);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
   const ForgotError = () => (
     error ? (
       <div className="mb-3 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs">
