@@ -118,8 +118,8 @@ export default function AuthPage() {
   );
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-      <div className="w-[900px] h-[580px] bg-white rounded-3xl shadow-2xl overflow-hidden flex-shrink-0">
+    <div className="min-h-screen w-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200 p-4">
+      <div className="w-full max-w-[900px] min-h-[580px] bg-white rounded-3xl shadow-2xl overflow-hidden">
         <AnimatePresence mode="wait">
 
           {/* ══ LOGIN ══ */}
@@ -130,12 +130,15 @@ export default function AuthPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -150 }}
               transition={{ duration: 0.45, ease: "easeInOut" }}
-              className="grid grid-cols-2 h-full"
+              className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              <div className="h-full">
+              {/* Hero — hidden on mobile */}
+              <div className="hidden md:block h-full">
                 <img src={loginHero} alt="Login" className="w-full h-full object-cover" />
               </div>
-              <div className="flex items-center justify-center px-8 h-full">
+
+              {/* Form */}
+              <div className="flex items-center justify-center px-8 py-8 md:py-0 h-full">
                 <div className="w-full">
                   <Logo />
                   <h1 className="text-2xl font-bold text-slate-800">Welcome Back</h1>
@@ -213,9 +216,10 @@ export default function AuthPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 150 }}
               transition={{ duration: 0.45, ease: "easeInOut" }}
-              className="grid grid-cols-2 h-full"
+              className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              <div className="flex items-start justify-center px-8 h-full pt-10">
+              {/* Form */}
+              <div className="flex items-start justify-center px-8 h-full pt-10 pb-8 md:pb-0">
                 <div className="w-full">
                   <Logo />
                   <h1 className="text-2xl font-bold text-slate-800">Create Account</h1>
@@ -284,7 +288,9 @@ export default function AuthPage() {
                   </p>
                 </div>
               </div>
-              <div className="h-full">
+
+              {/* Hero — hidden on mobile */}
+              <div className="hidden md:block h-full">
                 <img src={signUpHero} alt="Signup" className="w-full h-full object-cover" />
               </div>
             </motion.div>
@@ -298,12 +304,15 @@ export default function AuthPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -150 }}
               transition={{ duration: 0.45, ease: "easeInOut" }}
-              className="grid grid-cols-2 h-full"
+              className="grid grid-cols-1 md:grid-cols-2 min-h-[580px]"
             >
-              <div className="h-full">
+              {/* Hero — hidden on mobile */}
+              <div className="hidden md:block h-full">
                 <img src={loginHero} alt="Reset" className="w-full h-full object-cover" />
               </div>
-              <div className="flex items-center justify-center px-8 h-full">
+
+              {/* Form */}
+              <div className="flex items-center justify-center px-8 py-8 md:py-0 h-full">
                 <div className="w-full">
                   <Logo />
 

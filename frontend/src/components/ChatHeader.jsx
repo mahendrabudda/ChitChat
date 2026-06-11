@@ -1,4 +1,4 @@
-import { XIcon } from "lucide-react";
+import { XIcon, ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -15,8 +15,16 @@ function ChatHeader() {
   }, [setSelectedUser]);
 
   return (
-    <div className="flex justify-between items-center px-6 py-4 border-b border-blue-50 flex-shrink-0 bg-white">
+    <div className="flex justify-between items-center px-4 lg:px-6 py-4 border-b border-blue-50 flex-shrink-0 bg-white">
       <div className="flex items-center gap-3">
+        {/* mobile back arrow */}
+        <button
+          onClick={() => setSelectedUser(null)}
+          className="lg:hidden text-blue-400 hover:text-blue-600 transition p-1"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
         <div className={`avatar ${isOnline ? "online" : "offline"}`}>
           <div className="w-10 rounded-full border-2 border-blue-100">
             <img src={selectedUser.profilePic || "/avatar.png"} alt={selectedUser.fullName} />
@@ -29,9 +37,11 @@ function ChatHeader() {
           </p>
         </div>
       </div>
+
+      {/* desktop X — hidden on mobile */}
       <button
         onClick={() => setSelectedUser(null)}
-        className="text-blue-300 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
+        className="hidden lg:block text-blue-300 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
       >
         <XIcon className="w-4 h-4" />
       </button>
