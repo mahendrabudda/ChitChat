@@ -21,18 +21,15 @@ router.post("/reset-password", resetPassword);
 
 // ── Google OAuth ──
 router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"], session: false })
-);
-
-router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: `${process.env.CLIENT_URL}/auth?error=google_failed`, session: false }),
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.CLIENT_URL}/auth?error=google_failed`,
+    session: false,
+  }),
   (req, res) => {
-    // generate JWT cookie same as normal login
-    generateToken(req.user._id, res);
-    // redirect to frontend home
-    res.redirect(`${process.env.CLIENT_URL}/home`);
+    console.log("Google User:", req.user);
+
+    res.send(req.user);
   }
 );
 
