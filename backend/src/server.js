@@ -14,7 +14,7 @@ import connectDB from "./lib/db.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-const __dirname = path.resolve();
+
 
 app.use(cors({
     origin:
@@ -30,12 +30,15 @@ app.use(passport.initialize());                        // ← add
 app.use("/api/auth", authRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/friends", friendRequestRouter);
-app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+if (process.env.NODE_ENV === "production") {
+  const frontendDist = path.resolve("frontend", "dist");
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../../frontend/dist", "index.html"));
-});
+  app.use(express.static(frontendDist));
 
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
 const startServer = async () => {
   try {
     await connectDB();
