@@ -16,10 +16,10 @@ export const login = async (req, res) => {
       });
     }
 
-    // Google-only user has no password
+    // Google-only user — hasn't set a password yet
     if (!user.password) {
       return res.status(400).json({
-        message: "This account uses Google sign-in. Please continue with Google.",
+        message: "This account uses Google sign-in. Use 'Forgot password' to set a password, or continue with Google.",
       });
     }
 
@@ -138,13 +138,7 @@ export const sendResetOtp = async (req, res) => {
       return res.status(404).json({ success: false, message: "No account found with this email" });
     }
 
-    // Google-only users can't reset password
-    if (!user.password) {
-      return res.status(400).json({
-        success: false,
-        message: "This account uses Google sign-in. No password to reset.",
-      });
-    }
+    // ← removed the Google-only block — all users can reset/set password
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
     user.resetOtp = otp;
@@ -181,7 +175,8 @@ export const resetPassword = async (req, res) => {
     user.resetOtpExpireAt = 0;
     await user.save();
 
-    return res.json({ success: true, message: "Password updated successfully" });
+    // ← works for both normal users AND Google users setting a password for the first time
+    return res.json({ success: true, message: "Password set successfully" });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
